@@ -4,7 +4,7 @@ futureValueCompoundIncreasingAnnuityImmediate : function(payment, periods, rateP
 }
 
 futureValueCompoundIncreasingAnnuityDue : function(payment, periods, ratePerPeriod, factorPerPeriod) {
-  return futureValueCompoundIncreasingAnnuityImmediate(payment, periods, ratePerPeriod, factorPerPeriod) * (1 + ratePerPeriod
+  return futureValueCompoundIncreasingAnnuityImmediate(payment, periods, ratePerPeriod, factorPerPeriod) * (1 + ratePerPeriod);
 }
 
 futureValueStartOfMonth : function(startingValue, years, annualRate, inflation, annualContribution) {
@@ -40,26 +40,17 @@ contributionStartOfMonth : function(startingValue, years, annualRate, inflation,
   var effectiveAnnualRate = Math.pow(monthlyRate, 12) - 1;
   var annualFactor = futureValueCompoundIncreasingAnnuityImmediate(1, years, effectiveAnnualRate, inflation);
   var monthlyFactor = futureValueCompoundIncreasingAnnuityDue(1, 12, monthlyRate-1, 0);
-  
-  var interestWithInflation = (1 + effectiveAnnualRate)/(1 + inflation) - 1;
-  var effectiveAnnualContribution =  (futureValue - startingValue * Math.pow(1 + effectiveAnnualRate, years)) * ((1+effectiveAnnualRate) * interestWithInflation) / ((1 + interestWithInflation) * (Math.pow(1 + interestWithInflation, years) - 1));
-  var contribution = effectiveAnnualContribution * (monthlyRate - 1) / (Math.pow(monthlyRate, 13) - monthlyRate);
+  var effectiveAnnualContribution = (futureValue - startingValue * Math.pow(1 + effectiveAnnualRate, years)) / annualFactor;
+  var contribution = effectiveAnnualContribution / monthlyFactor;
   return contribution;
 }
 
 contributionEndOfMonth : function(startingValue, years, annualRate, inflation, futureValue) {
   var monthlyRate = 1 + annualRate/12;
   var effectiveAnnualRate = Math.pow(monthlyRate, 12) - 1;
-  var interestWithInflation = (1 + effectiveAnnualRate)/(1 + inflation) - 1;
-  var effectiveAnnualContribution =  (futureValue - startingValue * Math.pow(1 + effectiveAnnualRate, years)) * ((1+effectiveAnnualRate) * interestWithInflation) / ((1 + interestWithInflation) * (Math.pow(1 + interestWithInflation, years) - 1));
-  var contribution = effectiveAnnualContribution * (monthlyRate - 1) / (Math.pow(monthlyRate, 12) - 1);
+  var annualFactor = futureValueCompoundIncreasingAnnuityImmediate(1, years, effectiveAnnualRate, inflation);
+  var monthlyFactor = futureValueCompoundIncreasingAnnuityImmediate(1, 12, monthlyRate-1, 0);
+  var effectiveAnnualContribution = (futureValue - startingValue * Math.pow(1 + effectiveAnnualRate, years)) / annualFactor;
+  var contribution = effectiveAnnualContribution / monthlyFactor;
   return contribution;
-}
-
-accumulatedValueAnnuityDue : function(years, rate) {
-  return (Math.pow(1 + rate, years) - 1) * (1 + rate)/rate;
-}
-
-accumulatedValueAnnuityImmediate : function(years, rate) {
-  return (Math.pow(1 + rate, years) - 1)/rate;
 }
